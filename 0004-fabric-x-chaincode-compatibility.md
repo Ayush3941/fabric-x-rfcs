@@ -20,7 +20,7 @@ This proposal introduces a compatibility layer that enables existing Hyperledger
 
 Fabric-X introduces a modular transaction processing architecture designed for improved performance and scalability. However, unlike traditional Hyperledger Fabric, it does not provide a native chaincode execution environment. Organizations with existing Fabric applications therefore face significant migration challenges, as their chaincodes cannot be directly executed on Fabric-X without additional infrastructure or modifications.
 
-The proposed compatibility layer addresses this challenge by enabling existing Fabric chaincodes to execute on Fabric-X with minimal modifications. This allows organizations to preserve their chaincode business logic while adopting Fabric-X's transaction processing model, reducing migration complexity and development effort.
+The proposed compatibility layer addresses this challenge by enabling existing Fabric chaincodes to execute on Fabric-X with minimal modifications. This allows organizations to preserve their chaincode business logic while adopting Fabric-X's transaction processing model, reducing migration complexity and development effort.The Orchestrator may also expose a Fabric Gateway compatible client interface to minimize changes to existing applications, supporting query only evaluation and transaction submission workflows. This remains a design goal alongside support for custom client APIs.
 
 The main objectives are:
 
@@ -110,6 +110,8 @@ This separation allows the compatibility layer to reuse existing Fabric chaincod
 ## Execution and endorsement
 
 When an Orchestrator receives a transaction proposal, it resolves the corresponding chaincode runtime and invokes it through the embedded compatibility helper.
+
+The Orchestrator handles client requests through its client facing interface, with Fabric Gateway compatibility as a design goal. `Evaluate` executes chaincode without submitting a transaction, while `Endorse` collects the required endorsements, `Submit` forwards the signed transaction for ordering, and `CommitStatus` retrieves its final outcome through the Notification Service.
 
 The helper processes Fabric shim messages and translates state requests into operations supported by Fabric-X. Direct key-based reads are retrieved from committed state through the Committer Query Service, recording each key's version or absence in the transaction's read set for MVCC validation. Writes and deletions are collected in the transaction's write set without modifying committed ledger state. Subsequent reads continue to retrieve committed values rather than the transaction's pending writes, preserving Fabric's execution semantics.
 
