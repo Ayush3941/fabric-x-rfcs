@@ -154,6 +154,20 @@ These states help identify repeated requests and track execution progress. Addit
 
 If an Orchestrator or Query Service times out, requests may be redirected to another instance, subject to transaction recovery and consistency requirements. If required endorsements cannot be obtained, submission is aborted. Transaction IDs identify client retries to prevent duplicate processing. Submitted transactions without finality notifications remain SUBMITTED until their outcome is confirmed, without automatic re-submission.
 
+## Assumptions
+
+The proposed compatibility layer operates under the following assumptions:
+
+- **Organizational ownership and trust:** Each participating organization independently operates and trusts its own Orchestrator instances and chaincode execution environment. Organizations recognize each other's identities through configured Membership Service Providers (MSPs) and trusted certificate authorities.
+
+- **Client interaction:** Clients may use the Fabric Gateway SDK or a custom client to interact with the compatibility layer. Requests are typically directed to the client's own organization's Orchestrator, although other authorized Orchestrators may also be used.
+
+- **Multi-organization endorsement:** Participating organizations are assumed to maintain trusted chaincode execution environments and protect their endorsement credentials. The initiating Orchestrator independently verifies endorsement identities, signatures, and execution consistency against the configured namespace policy.
+
+- **Communication and discovery:** Orchestrators rely on authenticated communication channels, such as TLS/mTLS, and configured discovery mechanisms to locate participating instances. Resolved endpoints are not implicitly trusted without identity verification.
+
+- **Fabric-X services:** The compatibility layer relies on Fabric-X for committed-state queries, transaction ordering, endorsement-policy enforcement, MVCC validation, and transaction finality.
+
 ## Compatibility limitations
 
 - **State operations:** The initial implementation supports direct key-based `GetState`, `PutState`, and `DelState` operations using exact ledger keys.
